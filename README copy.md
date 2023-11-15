@@ -14,112 +14,30 @@ You'll need an OpenAI API key, you can generate one [here](https://beta.openai.c
 
 If the`$OPENAI_API_KEY` environment variable is set it will be used, otherwise, you will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`.
 
-## (Recommended) Interactive mode
+## Usage
 
-```text
-> ai
-Welcome to the Natural Language Terminal
-Ask anything about the world
-Start with "$c " to run write and python code
-Start with "$s " to write and run shell commands
->>>
-```
+`sgpt` has a variety of use cases, including simple queries, shell queries, and code queries.
 
-## Manual mode
+### Simple queries
 
-```text
-> ai --help
-
- Usage: ai [OPTIONS] [PROMPT]
-
-╭─ Arguments ───────────────────────────────────────────────────────────────────────────────╮
-│   prompt      [PROMPT]  The prompt to generate completions for                            │
-╰───────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ─────────────────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                               │
-╰───────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Usage Modes ─────────────────────────────────────────────────────────────────────────────╮
-│ --python  -p        Generate and run python code                                          │
-│ --shell   -s        Generate and execute shell commands.                                  │
-│ --run     -r        Run python code or shell commands. Requires --python or --shell       │
-│ --chat    -c        Talk to it normally                                                   │
-╰───────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Model Options ───────────────────────────────────────────────────────────────────────────╮
-│ --model                  TEXT                       Large language model to use.          │
-│                                                     [default: gpt-3.5-turbo]              │
-│ --temperature            FLOAT RANGE [0.0<=x<=2.0]  Randomness of generated output.       │
-│                                                     [default: 0.1]                        │
-│ --top-probability        FLOAT RANGE [0.1<=x<=1.0]  Limits highest probable tokens        │
-│                                                     (words).                              │
-│                                                     [default: 1.0]                        │
-╰───────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Advanced Options ────────────────────────────────────────────────────────────────────────╮
-│ --cache         --no-cache               Cache completion results. [default: cache]       │
-│ --chatid                           TEXT  Follow conversation with id, use "temp" for      │
-│                                          quick session.                                   │
-│                                          [default: None]                                  │
-│ --show-chat                        TEXT  Show all messages from provided chat id.         │
-│                                          [default: None]                                  │
-│ --list-chats    --no-list-chats          List all existing chat ids.                      │
-│                                          [default: no-list-chats]                         │
-╰───────────────────────────────────────────────────────────────────────────────────────────╯
-```
-
-### Use it as a knowledge base
+We can use it as normal search engine, asking about anything:
 
 ```shell
-ai -c "nginx default config file location"
+sgpt "nginx default config file location"
 # -> The default configuration file for Nginx is located at /etc/nginx/nginx.conf.
 ```
 
 ```shell
-ai -c "mass of sun"
-# -> 1.99 × 10^30 kg
+sgpt "mass of sun"
+# -> = 1.99 × 10^30 kg
 ```
 
 ```shell
-ai -c "1 hour and 30 minutes to seconds"
+sgpt "1 hour and 30 minutes to seconds"
 # -> 5,400 seconds
 ```
 
-### Use it to write and run shell commands
-
-Have you ever found yourself forgetting common shell commands, such as `chmod`, and needing to look up the syntax online? With `--shell` or shortcut `-s` option, you can quickly find and execute the commands you need right in the terminal. If you add the `-r` or `--run` option, it'll ask for a confirmation and even run the code in python interpreter or shell command
-
-```shell
-ai --shell "make all files in current directory read only"
-# -> chmod 444 *
-```
-
-Shell GPT is aware of OS and `$SHELL` you are using, it will provide shell command for specific system you have. For instance, if you ask `ai` to update your system, it will return a command based on your OS. Here's an example using macOS:
-
-```shell
-ai -s "update my system"
-# -> sudo softwareupdate -i -a
-```
-
-The same prompt, when used on Ubuntu, will generate a different suggestion:
-
-```shell
-ai -s "update my system"
-# -> sudo apt update && sudo apt upgrade -y
-```
-
-We can ask GPT to describe suggested shell command, it will provide a short description of what the command does:
-
-```shell
-ai -s "show all txt files in current folder"
-# -> ls *.txt
-```
-
-Let's try some docker containers:
-
-```shell
-ai -s "start nginx using docker, forward 443 and 80 port, mount current folder with index.html"
-# -> docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx
-```
-
-### Use it in your shell scripts
+### Summarization and analyzing
 
 ShellGPT accepts prompt from both stdin and command line argument, you choose the most convenient input method for your preferences. Whether you prefer piping input through the terminal or specifying it directly as arguments, `sgpt` got you covered. This versatile feature is particularly useful when you need to pass file content or pipe output from other commands to the GPT models for summarization or analysis. For example, you can easily generate a git commit message based on a diff:
 
@@ -137,10 +55,59 @@ docker logs -n 20 container_name | sgpt "check logs, find errors, provide possib
 
 This powerful feature simplifies the process of managing and understanding data from different sources, making it easier for you to focus on what really matters: improving your projects and applications.
 
-We can still use pipes to pass input to `ai` and get shell commands as output:
+### Shell commands
+
+Have you ever found yourself forgetting common shell commands, such as `chmod`, and needing to look up the syntax online? With `--shell` or shortcut `-s` option, you can quickly find and execute the commands you need right in the terminal.
 
 ```shell
-cat data.json | ai -s "curl localhost with provided json"
+sgpt --shell "make all files in current directory read only"
+# -> chmod 444 *
+# -> [E]xecute, [D]escribe, [A]bort: e
+...
+```
+
+Shell GPT is aware of OS and `$SHELL` you are using, it will provide shell command for specific system you have. For instance, if you ask `sgpt` to update your system, it will return a command based on your OS. Here's an example using macOS:
+
+```shell
+sgpt -s "update my system"
+# -> sudo softwareupdate -i -a
+# -> [E]xecute, [D]escribe, [A]bort: e
+...
+```
+
+The same prompt, when used on Ubuntu, will generate a different suggestion:
+
+```shell
+sgpt -s "update my system"
+# -> sudo apt update && sudo apt upgrade -y
+# -> [E]xecute, [D]escribe, [A]bort: e
+...
+```
+
+We can ask GPT to describe suggested shell command, it will provide a short description of what the command does:
+
+```shell
+sgpt -s "show all txt files in current folder"
+# -> ls *.txt
+# -> [E]xecute, [D]escribe, [A]bort: d
+# -> List all files with .txt extension in current directory
+# -> [E]xecute, [D]escribe, [A]bort: e
+...
+```
+
+Let's try some docker containers:
+
+```shell
+sgpt -s "start nginx using docker, forward 443 and 80 port, mount current folder with index.html"
+# -> docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx
+# -> [E]xecute, [D]escribe, [A]bort: e
+...
+```
+
+We can still use pipes to pass input to `sgpt` and get shell commands as output:
+
+```shell
+cat data.json | sgpt -s "curl localhost with provided json"
 # -> curl -X POST -H "Content-Type: application/json" -d '{"a": 1, "b": 2, "c": 3}' http://localhost
 ```
 
@@ -149,16 +116,33 @@ We can apply additional shell magic in our prompt, in this example passing file 
 ```shell
 ls
 # -> 1.mp4 2.mp4 3.mp4
-ai -s "using ffmpeg combine multiple videos into one without audio. Video file names: $(ls -m)"
+sgpt -s "using ffmpeg combine multiple videos into one without audio. Video file names: $(ls -m)"
 # -> ffmpeg -i 1.mp4 -i 2.mp4 -i 3.mp4 -filter_complex "[0:v] [1:v] [2:v] concat=n=3:v=1 [v]" -map "[v]" out.mp4
+# -> [E]xecute, [D]escribe, [A]bort: e
+...
 ```
 
-### Use it to write and run python code
+### Shell integration
 
-With `--python` parameters we can query only code as output, for example:
+Shell integration allows you to use Shell-GPT in your terminal with hotkeys. It is currently available for bash and zsh. It will allow you to have sgpt completions in your shell history, and also edit suggested commands right away.
+
+https://github.com/TheR1D/shell_gpt/assets/16740832/bead0dab-0dd9-436d-88b7-6abfb2c556c1
+
+To install shell integration, run:
 
 ```shell
-ai --python "Solve classic fizz buzz problem using Python"
+sgpt --install-integration
+# Restart your terminal to apply changes
+```
+
+This will add few lines to your `.bashrc` or `.zshrc` file. After that, you can use `Ctrl+l` (by default) to invoke Shell-GPT. When you press `Ctrl+l` it will replace you current input line (buffer) with suggested command. You can then edit it and press `Enter` to execute.
+
+### Generating code
+
+With `--code` parameters we can query only code as output, for example:
+
+```shell
+sgpt --code "Solve classic fizz buzz problem using Python"
 ```
 
 ```python
@@ -176,7 +160,7 @@ for i in range(1, 101):
 Since it is valid python code, we can redirect the output to file:
 
 ```shell
-ai --python "solve classic fizz buzz problem using Python" > fizz_buzz.py
+sgpt --code "solve classic fizz buzz problem using Python" > fizz_buzz.py
 python fizz_buzz.py
 # 1
 # 2
@@ -187,10 +171,10 @@ python fizz_buzz.py
 # ...
 ```
 
-We can also use pipes to pass input to `ai`:
+We can also use pipes to pass input to `sgpt`:
 
 ```shell
-cat fizz_buzz.py | ai --python "Generate comments for each line of my code"
+cat fizz_buzz.py | sgpt --code "Generate comments for each line of my code"
 ```
 
 ```python
@@ -213,11 +197,11 @@ for i in range(1, 101):
         print(i)
 ```
 
-### Advanced Options
+### Conversational Modes - Overview
 
 Often it is important to preserve and recall a conversation and this is kept track of locally. `sgpt` creates conversational dialogue with each llm completion requested. The dialogue can develop one-by-one (chat mode) or interactively, in a REPL loop (REPL mode). Both ways rely on the same underlying object, called a chat session. The session is located at the [configurable](#runtime-configuration-file) `CHAT_CACHE_PATH`.
 
-#### Listing and Showing Chat Sessions
+### Listing and Showing Chat Sessions
 
 Dialogues had in both REPL and chat mode are saved as chat sessions.
 
@@ -239,8 +223,6 @@ sgpt --show-chat number
 # assistant: Your favorite number is 4, so if we add 4 to it, the result would be 8.
 ```
 
-##################################################################################################################################
-
 ### Chat Mode
 
 To start a chat session, use the `--chat` option followed by a unique session name and a prompt. You can also use "temp" as a session name to start a temporary chat session.
@@ -255,7 +237,7 @@ sgpt --chat number "what would be my favorite number + 4?"
 You can also use chat sessions to iteratively improve GPT suggestions by providing additional clues.
 
 ```shell
-sgpt --chat python_request --python "make an example request to localhost using Python"
+sgpt --chat python_request --code "make an example request to localhost using Python"
 ```
 
 ```python
@@ -268,7 +250,7 @@ print(response.text)
 Asking AI to add a cache to our request.
 
 ```shell
-sgpt --chat python_request --python "add caching"
+sgpt --chat python_request --code "add caching"
 ```
 
 ```python
@@ -282,7 +264,7 @@ response = cached_sess.get('http://localhost')
 print(response.text)
 ```
 
-We can use `--python` or `--shell` options to initiate `--chat`, so you can keep refining the results:
+We can use `--code` or `--shell` options to initiate `--chat`, so you can keep refining the results:
 
 ```shell
 sgpt --chat sh --shell "What are the files in this directory?"
@@ -312,7 +294,7 @@ REPL stands for Read-Eval-Print Loop. It is a programming environment ...
 To use Python with REPL, you can simply open a terminal or command prompt ...
 ```
 
-REPL mode can work with `--shell` and `--python` options, which makes it very handy for interactive shell commands and code generation:
+REPL mode can work with `--shell` and `--code` options, which makes it very handy for interactive shell commands and code generation:
 
 ```text
 sgpt --repl temp --shell
@@ -330,7 +312,7 @@ ls -lhS
 Example of using REPL mode to generate code:
 
 ```text
-sgpt --repl temp --python
+sgpt --repl temp --code
 Entering REPL mode, press Ctrl+C to exit.
 >>> Using Python request localhost:80
 import requests
@@ -435,6 +417,39 @@ DISABLE_STREAMING=false
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 
 Switch `SYSTEM_ROLES` to force use [system roles](https://help.openai.com/en/articles/7042661-chatgpt-api-transition-guide) messages, this is not recommended, since it doesn't perform well with current GPT models.
+
+### Full list of arguments
+
+```text
+╭─ Arguments ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│   prompt      [PROMPT]  The prompt to generate completions for.                                             │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --model            TEXT                             OpenAI GPT model to use. [default: gpt-3.5-turbo]       │
+│ --temperature      FLOAT RANGE [0.0<=x<=2.0]        Randomness of generated output. [default: 0.1]          │
+│ --top-probability  FLOAT RANGE [0.1<=x<=1.0]        Limits highest probable tokens (words). [default: 1.0]  │
+│ --editor                                            Open $EDITOR to provide a prompt. [default: no-editor]  │
+│ --cache                                             Cache completion results. [default: cache]              │
+│ --help                                              Show this message and exit.                             │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Assistance Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --shell  -s                 Generate and execute shell commands.                                            │
+│ --describe-shell  -d        Describe a shell command.                                                       │
+│ --code       --no-code      Generate only code. [default: no-code]                                          │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Chat Options ──────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --chat        TEXT  Follow conversation with id, use "temp" for quick session. [default: None]              │
+│ --repl        TEXT  Start a REPL (Read–eval–print loop) session. [default: None]                            │
+│ --show-chat   TEXT  Show all messages from provided chat id. [default: None]                                │
+│ --list-chats        List all existing chat ids. [default: no-list-chats]                                    │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Role Options ──────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --role         TEXT  System role for GPT model. [default: None]                                             │
+│ --create-role  TEXT  Create role. [default: None]                                                           │
+│ --show-role    TEXT  Show role. [default: None]                                                             │
+│ --list-roles         List roles. [default: no-list-roles]                                                   │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
 
 ## LocalAI
 

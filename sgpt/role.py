@@ -37,12 +37,10 @@ Do not show any warnings or information regarding your capabilities.
 If you need to store any data, assume it will be stored in the chat."""
 
 
-PROMPT_TEMPLATE = """###
-Role name: {name}
-{role}
+PROMPT_TEMPLATE = """{role}
 
 Request: {request}
-###
+
 {expecting}:"""
 
 

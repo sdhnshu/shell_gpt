@@ -34,10 +34,12 @@ dependencies = [
     "rich >= 13.1.0, < 14.0.0",
     "distro >= 1.8.0, < 2.0.0",
     'pyreadline3 >= 3.4.1, < 4.0.0; sys_platform == "win32"',
+    'prompt_toolkit',
+    'embedia'
 ]
 
 [project.scripts]
-sgpt = "sgpt:cli"
+ai = "sgpt:cli"
 
 [project.urls]
 homepage = "https://github.com/ther1d/shell_gpt"
@@ -93,6 +95,8 @@ ignore = [
     "E501",  # line too long, handled by black.
     "C901",  # too complex.
     "B008",  # do not perform function calls in argument defaults.
+    "F401",  # module imported but unused.
+    "F841",  # local variable is assigned to but never used.
 ]
 
 [tool.codespell]
