@@ -233,7 +233,7 @@ def main(
         # Will be in infinite loop here until user exits with Ctrl+C.
         try:
             print(
-                'Welcome to the Natural Language Terminal\nAsk anything about the world\nStart with "$c " to run write and python code\nStart with "$s " to write and run shell commands'
+                'Welcome to the Natural Language Terminal\nAsk anything about the world\nStart with "$p " to run write and python code\nStart with "$s " to write and run shell commands'
             )
             while True:
                 prompt = prompt_toolkit.prompt(">>> ", history=history)
@@ -251,7 +251,7 @@ def main(
                     chatid = full_completion
 
                 # Write / Run / Save Code
-                if prompt.startswith("$c "):
+                if prompt.startswith("$p "):
                     run_code()
                 # Write / Run Shell Command
                 elif prompt.startswith("$s "):
