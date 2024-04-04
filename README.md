@@ -20,7 +20,7 @@ If the`$OPENAI_API_KEY` environment variable is set it will be used, otherwise, 
 > ai
 Welcome to the Natural Language Terminal
 Ask anything about the world
-Start with "$c " to run write and python code
+Start with "$p " to write and run python code
 Start with "$s " to write and run shell commands
 >>>
 ```

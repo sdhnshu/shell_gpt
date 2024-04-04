@@ -127,7 +127,7 @@ def main(
     def run_code(save=True, run=True):
         role_class = DefaultRoles.CODE.get_role()
         full_completion = ChatHandler(chatid + "code", role_class).handle(
-            prompt[3:],
+            prompt[3:] if not python and not shell else prompt,
             model=model,
             temperature=temperature,
             top_probability=top_probability,
@@ -136,7 +136,12 @@ def main(
         )
         if not save and not run:
             return full_completion
-        states.append({"code_request": prompt[3:], "code": full_completion})
+        states.append(
+            {
+                "code_request": prompt[3:] if not python and not shell else prompt,
+                "code": full_completion,
+            }
+        )
         option = typer.prompt(
             text="Run? y/[n]",
             type=Choice(("n", "y"), case_sensitive=False),
@@ -149,7 +154,7 @@ def main(
             output = asyncio.run(pyshell(full_completion))
             states.append(
                 {
-                    "code_request": prompt[3:],
+                    "code_request": prompt[3:] if not python and not shell else prompt,
                     "code": full_completion,
                     "output": output.output,
                 }
@@ -170,7 +175,7 @@ def main(
     def run_shell(run=True):
         role_class = DefaultRoles.SHELL.get_role()
         full_completion = ChatHandler(chatid + "shell", role_class).handle(
-            prompt[3:],
+            prompt[3:] if not python and not shell else prompt,
             model=model,
             temperature=temperature,
             top_probability=top_probability,
@@ -181,7 +186,7 @@ def main(
             return full_completion
         states.append(
             {
-                "shell_request": prompt[3:],
+                "shell_request": prompt[3:] if not python and not shell else prompt,
                 "shell": full_completion,
                 # "output": output
             }
@@ -199,7 +204,7 @@ def main(
             output = asyncio.run(shelltool(full_completion))
             states.append(
                 {
-                    "shell_request": prompt[3:],
+                    "shell_request": prompt[3:] if not python and not shell else prompt,
                     "shell": full_completion,
                     "output": output.output,
                 }
@@ -233,7 +238,7 @@ def main(
         # Will be in infinite loop here until user exits with Ctrl+C.
         try:
             print(
-                'Welcome to the Natural Language Terminal\nAsk anything about the world\nStart with "$p " to run write and python code\nStart with "$s " to write and run shell commands'
+                'Welcome to the Natural Language Terminal\nAsk anything about the world\nStart with "$p " to write and run python code\nStart with "$s " to write and run shell commands'
             )
             while True:
                 prompt = prompt_toolkit.prompt(">>> ", history=history)
